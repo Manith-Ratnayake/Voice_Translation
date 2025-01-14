@@ -23,3 +23,6 @@ config = speech.RecognitionConfig(
 
 response = client.recognize(config=config, audio=audio)
 print(response)
+
+
+

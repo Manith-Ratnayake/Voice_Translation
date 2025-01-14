@@ -1,9 +1,4 @@
 
-
-
-
-
-
 from google.cloud import texttospeech
 import os
 
