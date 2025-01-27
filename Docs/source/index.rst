@@ -11,11 +11,19 @@ Voice Translation Solutions
    :hidden:
    :caption: Contents:
 
-   sec1/aws
-   sec1/gcp
-   sec1/whisper
-   sec1/coqui
-   sec1/speechbrain
+   options/AWS
+   options/GCP
+   options/Whisper
+   options/Coqui
+   options/SpeechBrain
+   options/Eleven_Labs
+   options/AssemblyAI
+   options/Kaldi
+   options/Wav2Letter
+   options/Librechat
+   options/Turboscribe
+   options/Azure
+   options/Arxiv
 
 Librechat.AI 
 
@@ -37,8 +45,6 @@ Coqui STT
 
 Turboscribe
 
+Eleven Labs
 
-
-
-
- 
+Azure

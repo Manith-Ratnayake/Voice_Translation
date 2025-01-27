@@ -1,2 +1,4 @@
 pip install boto3
 pip install pyaudio
+pip install assemblyai
+pip install whisper
