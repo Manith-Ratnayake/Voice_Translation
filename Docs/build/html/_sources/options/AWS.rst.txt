@@ -2,9 +2,9 @@ Amazon Web Service
 ++++++++
 
 
-:
-    print(hello)
-:
+
+print(hello)
+
 
 
 .. danger::

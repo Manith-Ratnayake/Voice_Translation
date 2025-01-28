@@ -11,40 +11,67 @@ Voice Translation Solutions
    :hidden:
    :caption: Contents:
 
+   options/Definitions
    options/AWS
    options/GCP
-   options/Whisper
-   options/Coqui
-   options/SpeechBrain
-   options/Eleven_Labs
-   options/AssemblyAI
-   options/Kaldi
+   options/Azure
    options/Wav2Letter
+   options/FlashLight
+   options/Coqui 
+   options/Whisper
+   options/SpeechBrain
+   options/Kaldi
+
    options/Librechat
    options/Turboscribe
-   options/Azure
+   options/Eleven_Labs
+   options/AssemblyAI
+
    options/Arxiv
 
-Librechat.AI 
 
-Assembly AI
 
-Google TTS/STT
+ Major Cloud 
 
-AWS Transcribe
 
-Arxiv.org Deepspeak
+1. Google Cloud 
 
-Kaldi kaldi_asr.org
+2. AWS Transcribe
 
-Wav2Letter 
+3. Azure
 
-SpeechBrain 
 
-Coqui STT
+------ Open Source ------
 
-Turboscribe
 
-Eleven Labs
+4. Wav2Letter 
 
-Azure
+5. FlashLight
+
+6. Coqui STT
+
+7. Coqui TTS
+
+8. Whisper
+
+9. WhisperSpeech
+
+10. Kaldi kaldi_asr.org
+
+11. SpeechBrain
+
+
+-------- Paid --------
+
+12. Librechat.AI 
+
+13. Assembly AI 
+
+14. Turboscribe
+
+15. Eleven Labs
+
+
+-------- Research --------
+
+16. Arxiv.org 

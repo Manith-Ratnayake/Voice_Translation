@@ -10,6 +10,7 @@ client = speech.SpeechClient(credentials = credentials)
 
 audio_file = "someaudio.wav"
 
+
 with io.open(audio_file, "rb") as f:
     content = f.read()
     audio = speech.RecognitionAudio(content=content)
