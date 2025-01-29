@@ -3,7 +3,6 @@ Amazon Web Service
 
 
 
-print(hello)
 
 
 

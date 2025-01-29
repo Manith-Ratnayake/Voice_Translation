@@ -7,14 +7,20 @@ Voice Translation Solutions
 ===============================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
    :hidden:
-   :caption: Contents:
-
-   options/Definitions
+   :caption: Cloud
+   
+   
    options/AWS
    options/GCP
    options/Azure
+
+.. toctree::
+   :maxdepth: 5
+   :hidden:
+   :caption: Open Source
+
    options/Wav2Letter
    options/FlashLight
    options/Coqui 
@@ -22,17 +28,32 @@ Voice Translation Solutions
    options/SpeechBrain
    options/Kaldi
 
+
+.. toctree::
+   :maxdepth: 5
+   :hidden:
+   :caption: Paid
+
    options/Librechat
    options/Turboscribe
    options/Eleven_Labs
    options/AssemblyAI
 
+
+.. toctree::
+   :maxdepth: 5
+   :hidden:
+   :caption: Research
+   
    options/Arxiv
 
 
 
- Major Cloud 
+--------------
 
+
+Cloud 
++++++++++++
 
 1. Google Cloud 
 
@@ -41,8 +62,8 @@ Voice Translation Solutions
 3. Azure
 
 
------- Open Source ------
-
+Open Source 
++++++++++
 
 4. Wav2Letter 
 
@@ -61,7 +82,8 @@ Voice Translation Solutions
 11. SpeechBrain
 
 
--------- Paid --------
+Paid 
++++++++++++++
 
 12. Librechat.AI 
 
@@ -72,6 +94,7 @@ Voice Translation Solutions
 15. Eleven Labs
 
 
--------- Research --------
+Research 
+++++++++++++++
 
 16. Arxiv.org 

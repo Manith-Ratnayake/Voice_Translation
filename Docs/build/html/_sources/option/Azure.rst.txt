@@ -1,0 +1,6 @@
+Azure 
++++++++++++
+
+Cost 
+OpenAI 
+aa
