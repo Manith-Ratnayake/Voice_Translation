@@ -1,6 +1,4 @@
 WhisperSpeech
 ++++++++++++++++++
-
-
-Only english datasets 
+ 
 Previously known as spear-tts-pytorch.

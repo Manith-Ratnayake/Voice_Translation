@@ -1,9 +1,13 @@
-Coqui
+Coqui STT
 +++++++++
 
-Coqui deprecated, alternatives
+Coqui STT deprecated, alternatives
 
     - Coqui TTS
     - Whisper
 
 
+Coqui TTS
+=================
+
+16 languages

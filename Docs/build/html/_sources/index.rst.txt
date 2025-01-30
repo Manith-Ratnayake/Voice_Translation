@@ -6,25 +6,33 @@
 Voice Translation Solutions
 ===============================
 
+
+.. toctree::
+   :maxdepth: 5
+   :hidden:
+
+   options/Definitions
+
+
 .. toctree::
    :maxdepth: 5
    :hidden:
    :caption: Cloud
-   
-   
+
    options/AWS
    options/GCP
    options/Azure
 
 .. toctree::
-   :maxdepth: 5
+   :maxdepth: 10
    :hidden:
    :caption: Open Source
 
    options/Wav2Letter
-   options/FlashLight
+   options/Flashlight
    options/Coqui 
    options/Whisper
+   options/WhisperSpeech
    options/SpeechBrain
    options/Kaldi
 
@@ -63,7 +71,7 @@ Cloud
 
 
 Open Source 
-+++++++++
+++++++++++++++
 
 4. Wav2Letter 
 

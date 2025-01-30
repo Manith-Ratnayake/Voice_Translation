@@ -1,0 +1,17 @@
+Flashlight
++++++++++++++++++++++++++ 
+
+Facebook AI research Team  
+c++ library for machine leanring ()
+
+Project is divided into 4 parts
+    - lib
+    - f1
+    - pkg
+    - app
+
+
+Two ways to install
+    - vcpkg
+    - source
+

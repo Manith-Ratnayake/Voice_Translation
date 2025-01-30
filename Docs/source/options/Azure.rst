@@ -1,6 +1,4 @@
 Azure 
 +++++++++++
 
-Cost 
-OpenAI 
-aa
+!!! cannot try free trial !!!
