@@ -1,1 +1,0 @@
-pip install boto3 pyaudio assemblyai whisper fastapi openai uvicorn dotenv SpeechRecognition speechbrain TTS

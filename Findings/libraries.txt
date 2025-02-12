@@ -1,0 +1,6 @@
+pip install boto3 pyaudio assemblyai whisper fastapi openai uvicorn dotenv 
+            SpeechRecognition speechbrain TTS google-auth
+
+
+
+pip install google-cloud-speech elevenlabs
