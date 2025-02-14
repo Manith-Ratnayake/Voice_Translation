@@ -28,20 +28,16 @@ try {
 
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "uploads/"); 
-    },
+    destination: "uploads/", // Folder where files will be stored
     filename: (req, file, cb) => {
-        audioNumber++;
-        cb(null, `audio-${audioNumber}${path.extname(file.originalname)}`);
+        cb(null, file.originalname); // Use the filename from the frontend
     },
 });
 
 
-
 const upload = multer({ storage });
-
 app.use(express.static("./uploads"));
+
 
 app.get("/", ( req, res) => {
     res.send("<h1>🚀 Server is running...</h1>");
@@ -50,27 +46,23 @@ app.get("/", ( req, res) => {
 
 
 let audioNumber = -1;
-
-
 app.post("/uploads", upload.single("audio"), async (req, res) => {
     
-    audioNumber++;
-    console.log(audioNumber)
 
     if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
     }
 
 
-    const languageSender = req.body.languageSender;
-    const languageListener = req.body.languageListener;
-
-    const filename = req.file.filename; 
+    const languageSender    = req.body.languageSender;
+    const languageListener  = req.body.languageListener;
+    const senderIpAddress   = req.body.senderIpAddress;
+    const listenerIpAddress = req.body.listenerIpAddress
+    const filename          = req.file.filename; 
 
 
     console.log(`✅ File received: ${req.file.filename}`);
     console.log(`Language: ${languageListener}`);
-
     console.log("audionumber before s3 file start :", audioNumber )
 
 
