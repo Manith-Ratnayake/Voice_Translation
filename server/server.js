@@ -149,17 +149,3 @@ app.post("/database", (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
-
-
-/*
-   try {
-         uploadFileToS3
-
-    } catch (error) {
-        console.error("Error uploading to S3:", error);
-        res.status(500).json({ message: "Error uploading to S3", error: error.message });
-    }
-
-
-
-*/

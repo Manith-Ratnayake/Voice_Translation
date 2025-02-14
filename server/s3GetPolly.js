@@ -47,57 +47,6 @@ export const speechDownloadPolly = async (file) => {
   }
 };
 
-  
-  
-  
-
-/*
-  
-  const client = new PollyClient({ region: "ap-south-1" });
-
-  console.log("Text inside the textToSpeech : ", text);
-
-  const params = {
-    OutputFormat: "mp3",
-    OutputS3BucketName: "voicetranslationpollymanith", // Set your S3 bucket name
-    Text: text,
-    TextType: "text",
-    VoiceId: "Joanna",
-  };
-
-  try {
-    const data = await client.send(new StartSpeechSynthesisTaskCommand(params));
-    console.log("Task Started:", data.SynthesisTask.TaskId);
-
-    let taskStatus = "scheduled";
-    let outputUri = null;
-
-    while (taskStatus === "scheduled" || taskStatus === "inProgress") {
-       new Promise((resolve) => setTimeout(resolve, 2000)); // Wait 2 seconds before checking again
-
-      const taskData = await client.send(
-        new GetSpeechSynthesisTaskCommand({ TaskId: data.SynthesisTask.TaskId })
-      );
-      taskStatus = taskData.SynthesisTask.TaskStatus;
-
-      console.log("Current Task Status:", taskStatus);
-
-      if (taskStatus === "completed") {
-        outputUri = taskData.SynthesisTask.OutputUri;
-        console.log("✅ Success! MP3 file saved to S3:", outputUri);
-        return outputUri; // Return the S3 URL
-      } else if (taskStatus === "failed") {
-        console.error("❌ Task Failed:", taskData.SynthesisTask.FailureReason);
-        throw new Error("Polly task failed: " + taskData.SynthesisTask.FailureReason);
-      }
-    }
-  } catch (err) {
-    console.error("❌ Error:", err);
-    throw err; // Ensure calling function knows about the failure
-  }
-};
-
-
 
 
 
