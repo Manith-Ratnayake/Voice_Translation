@@ -2,9 +2,11 @@ import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import fs from 'fs';
 import path from 'path';
 
+
+
 export const speechDownloadPolly = async (file) => {
   const REGION = "ap-south-1";
-  const BUCKET_NAME = "voicetranslationpollymanith";  // ✅ Ensure this is defined
+  const BUCKET_NAME = "voicetranslationpollymanith";  
   const FILE_KEY = file;
   const LOCAL_FOLDER = "downloads"; 
 

@@ -1,3 +1,5 @@
+
+/*
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
@@ -17,6 +19,29 @@ const { speechDownloadPolly } = require("./s3GetPolly.js")
 
 app.use(cors()); 
 app.use(express.json()); 
+*/
+
+
+
+import express from "express";
+import path from "path";
+import fs from "fs";
+import cors from "cors";
+import mydb from "./mysql.js";
+import multer from "multer";
+import uploadFileToS3 from './s3.js';
+
+import { triggerTranscriptionJob } from './transcribe_create_job.js';
+import { istranscriptionCompleted } from './transcribe_list.js';
+import { s3transcriptionToText } from "./s3Get.js";
+import { textToSpeechPolly } from "./polly.js";
+import { speechDownloadPolly } from "./s3GetPolly.js";
+
+const app = express();
+const PORT = 3000;
+
+app.use(cors());
+app.use(express.json());
 
 
 try {
@@ -86,9 +111,6 @@ app.post("/uploads", upload.single("audio"), async (req, res) => {
 
     const audioFilePath = path.join(__dirname, 'downloads', mp3Url);
     return res.sendFile(audioFilePath);
-
-    console.log("Program final line")
-
 
 });
 

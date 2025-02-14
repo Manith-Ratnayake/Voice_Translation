@@ -4,7 +4,7 @@ import { languagesMap } from './languages';
 const Sender = () => {
 
 
-    const hostingIpAddress = "43.205.77.134"
+    const hostingIpAddress = "43.205.77.134";
 
     const [permission, setPermission] = useState(false);
     const [stream, setStream] = useState(null);
@@ -14,23 +14,25 @@ const Sender = () => {
     const [selectedLanguageSender, setSelectedLanguageSender] = useState("");
     const [selectedLanguageListener, setSelectedLanguageListener] = useState("");
 
-    const [processedAudioUrl, setProcessedAudioUrl] = useState(null); // For processed audio
+    const [processedAudioUrl, setProcessedAudioUrl] = useState(null); 
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
 
-    // Handle the audio file sending logic
+
     const handleAudioFile = async (audioBlob) => {
         console.log("Audio File:", audioBlob);
 
         const formData = new FormData();
-        formData.append("audio", audioBlob, "ManithIsgoneCray.wav");
+        const now = new Date()
+
+        formData.append("audio", audioBlob, `${yourIp}_${now}.wav`);
         console.log("I am not sending data to api : ", audioBlob);
         formData.append("languageSender", selectedLanguageSender);
         formData.append("languageListener", selectedLanguageListener);
 
 
         try {
-            const response = await fetch("http://localhost:3000/uploads", {
+            const response = await fetch(`http://${hostingIpAddress}:3000/uploads`, {
                 method: "POST",
                 body: formData,
             });

@@ -1,7 +1,5 @@
-const { StartTranscriptionJobCommand } = require("@aws-sdk/client-transcribe");
-const { transcribeClient } = require("./transcribeClient.js");
-
-
+import { StartTranscriptionJobCommand } from "@aws-sdk/client-transcribe";
+import { transcribeClient } from "./transcribeClient.js";
 
 const triggerTranscriptionJob = async (filename, number, languageCodeAWS) => {
   console.log("Inside the trigger function");
@@ -14,6 +12,7 @@ const triggerTranscriptionJob = async (filename, number, languageCodeAWS) => {
       MediaFileUri: `s3://voicebuketmanithratnayake/${filename}`,
     },
     OutputBucketName: "voiceoutputbucketmanithratnayake",
+
   };
 
   try {
@@ -22,26 +21,25 @@ const triggerTranscriptionJob = async (filename, number, languageCodeAWS) => {
     );
     console.log("Success - put", data);
     return data;
-  } catch (err) { 
+  } catch (err) {
     console.log("Error", err);
   }
-
-
 };
+
+export { triggerTranscriptionJob };
 
 
 
 
 // Export function using CommonJS
-module.exports = { triggerTranscriptionJob };
+//module.exports = { triggerTranscriptionJob };
 
 
 
 
 
 
-
-
+//"voiceoutputbucketmanithratnayake",
 
 
 
@@ -88,5 +86,5 @@ export const run = async () => {
 
 
 
-const name = "s3://voicebuketmanithratnayake/englisholdaudio.wav"
-const name2 = "voiceoutputbucketmanithratnayake"
+//const name = "s3://voicebuketmanithratnayake/englisholdaudio.wav"
+//const name2 = "voiceoutputbucketmanithratnayake"
