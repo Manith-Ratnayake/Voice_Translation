@@ -1,28 +1,4 @@
-
-/*
-const express = require("express");
-const path = require("path");
-const fs = require("fs");
-const cors = require("cors");
-const mydb = require("./mysql.js");
-const app = express();
-const PORT = 3000;
-
-const multer = require('multer');
-const uploadFileToS3 = require('./s3.js');
-const { triggerTranscriptionJob } = require('./transcribe_create_job');
-const { istranscriptionCompleted } = require('./transcribe_list.js');
-const { s3transcriptionToText } = require("./s3Get.js");
-const { textToSpeechPolly } = require("./polly.js")
-const { speechDownloadPolly } = require("./s3GetPolly.js")
-
-
-app.use(cors()); 
-app.use(express.json()); 
-*/
-
-
-
+import WebSocket  from "ws";    
 import express from "express";
 import path from "path";
 import fs from "fs";
@@ -39,6 +15,8 @@ import { speechDownloadPolly } from "./s3GetPolly.js";
 
 const app = express();
 const PORT = 3000;
+const wss = new WebSocket.Server({ port: 3001}); 
+
 
 app.use(cors());
 app.use(express.json());
@@ -49,6 +27,23 @@ try {
 } catch (err) {
     console.error("Error creating uploads directory:", err);
 }
+
+
+
+wss.on('connection', (ws) => {
+    console.log('A new client connected!');
+
+    ws.on('message', (message) => {
+        console.log('Received from client:', message);
+        ws.send('Hello from server: ' + message);
+    });
+
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
+
+    ws.send('Welcome to the WebSocket server!');
+});
 
 
 

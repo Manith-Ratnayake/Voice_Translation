@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect }  from "react";
 import { languagesMap } from './languages';
 
 const Sender = () => {
@@ -26,7 +26,7 @@ const Sender = () => {
         const now = new Date()
 
         formData.append("audio", audioBlob, `${yourIp}_${now}.wav`);
-        console.log("I am not sending data to api : ", audioBlob);
+        formData.append("listenerIpAddress", listenerIp);
         formData.append("languageSender", selectedLanguageSender);
         formData.append("languageListener", selectedLanguageListener);
 
@@ -161,24 +161,36 @@ const Sender = () => {
         }
     }, [yourIp]);
 
-  
+    
+
+
+
+    const [listenerIp, setListenerIp] = useState('');
+    
+    const handleChange = (event) => {
+        setListenerIp(event.target.value);
+    };
+    
+
+   
+
     return (
        
      <>         
-        <form>
-            <div class="form-group">
-                <label for="">Listener Details Submit</label>
-                <input type="name" className="form-control" id=""  placeholder="Enter Listener ip address (Public) "/>
-            </div>
-
-            <button onClick={() => sendMessageDatabase(yourIp)} className="btn btn-dark">
-                    Database Connection
-                </button>
-        </form>
-
-  
         
-             
+        <div>
+            <label htmlFor="listener-ip">Enter Listener IP Address (Public):</label>
+            <input
+                type="text"
+                id="listener-ip"
+                className="form-control"
+                placeholder="Enter Listener IP"
+                value={listenerIp} // Controlled input
+                onChange={handleChange} // Update state on input change
+            />
+            <p>Entered IP Address: {listenerIp}</p>
+        </div>
+
 
 
         <div className="container" style={{ display: 'flex', margin: 0, padding: 0 }}>
@@ -273,9 +285,29 @@ const Sender = () => {
                     </div>
                 )}
             </div>
+
+
+            <div className="C" style={{ width:'50%',padding: '20px',boxSizing:'border-box',backgroundColor: 'grey' }}>
+                other person without speaking
+            </div>
+
+
+
+
+
+
+
+
         </div>
+
+
+
     </>
     );
 };
 
 export default Sender;
+
+/*<button onClick={() => sendMessageDatabase(yourIp)} className="btn btn-dark">
+Database Connection
+</button>*/
