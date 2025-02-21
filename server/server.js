@@ -1,9 +1,12 @@
-import WebSocket  from "ws";    
+import { Server } from "socket.io";
+import http from "http"; 
+
+
 import express from "express";
 import path from "path";
 import fs from "fs";
 import cors from "cors";
-import mydb from "./mysql.js";
+//import mydb from "./mysql.js";
 import multer from "multer";
 import uploadFileToS3 from './s3.js';
 
@@ -13,13 +16,16 @@ import { s3transcriptionToText } from "./s3Get.js";
 import { textToSpeechPolly } from "./polly.js";
 import { speechDownloadPolly } from "./s3GetPolly.js";
 
+
+
 const app = express();
 const PORT = 3000;
-const wss = new WebSocket.Server({ port: 3001}); 
-
-
+const server = http.createServer(app);
+const users = new Map(); 
 app.use(cors());
 app.use(express.json());
+
+
 
 
 try {
@@ -29,42 +35,55 @@ try {
 }
 
 
-
-wss.on('connection', (ws) => {
-    console.log('A new client connected!');
-
-    ws.on('message', (message) => {
-        console.log('Received from client:', message);
-        ws.send('Hello from server: ' + message);
-    });
-
-    ws.on('close', () => {
-        console.log('Client disconnected');
-    });
-
-    ws.send('Welcome to the WebSocket server!');
+const io = new Server(server, {
+    cors: {
+        origin: "*", // Allow all origins (you can restrict this to your frontend URL)
+        methods: ["GET", "POST"]
+    }
 });
+
+
+
+
+
+io.on("connection", (socket) => {
+    const userIP = socket.handshake.address;
+    users.set(userIP, socket.id);
+    console.log(`User connected from IP: ${userIP}`);
+  
+    socket.on("send-audio", ({ audio, targetIP }) => {
+      if (users.has(targetIP)) {
+        io.to(users.get(targetIP)).emit("receive-audio", { audio });
+        console.log(`Audio sent to ${targetIP}`);
+      } else {
+        console.log(`Target IP ${targetIP} not found.`);
+      }
+    });
+  
+    socket.on("disconnect", () => {
+      users.delete(userIP);
+      console.log(`User disconnected: ${userIP}`);
+    });
+  });
+  
 
 
 
 const storage = multer.diskStorage({
     destination: "uploads/", // Folder where files will be stored
-    filename: (req, file, cb) => {
+    filename: (req, file, cb) => {      
         cb(null, file.originalname); // Use the filename from the frontend
     },
 });
-
-
 const upload = multer({ storage });
 app.use(express.static("./uploads"));
+
+
 
 
 app.get("/", ( req, res) => {
     res.send("<h1>🚀 Server is running...</h1>");
 });
-
-
-
 let audioNumber = -1;
 app.post("/uploads", upload.single("audio"), async (req, res) => {
     
@@ -81,35 +100,38 @@ app.post("/uploads", upload.single("audio"), async (req, res) => {
     const filename          = req.file.filename; 
 
 
-    console.log(`✅ File received: ${req.file.filename}`);
-    console.log(`Language: ${languageListener}`);
-    console.log("audionumber before s3 file start :", audioNumber )
+    async function functioanlities(){
+
+            console.log(`✅ File received: ${req.file.filename}`);
+            console.log(`Language: ${languageListener}`);
+            console.log("audionumber before s3 file start :", audioNumber )
 
 
-    await uploadFileToS3(filename);
+            await uploadFileToS3(filename);
 
-    console.log("audionumber before transcription start :", audioNumber )
+            console.log("audionumber before transcription start :", audioNumber )
 
-    await triggerTranscriptionJob(filename, audioNumber, languageSender)
-    
-    console.log("audionumber before transcription finished :", audioNumber )
-    await istranscriptionCompleted(`TranscriptionJob_${audioNumber}_${filename}`)
+            await triggerTranscriptionJob(filename, audioNumber, languageSender)
+            
+            console.log("audionumber before transcription finished :", audioNumber )
+            await istranscriptionCompleted(`TranscriptionJob_${audioNumber}_${filename}`)
 
 
-    //    await s3transcriptionToText({ file: `TranscriptionJob_${audioNumber}_${filename}.json` });
-    let transcriptText = await s3transcriptionToText({ file: `TranscriptionJob_${audioNumber}_${filename}.json` });
-    const mp3Url = await textToSpeechPolly(transcriptText, languageListener);
-    console.log("mp3url : ", mp3Url)
+            let transcriptText = await s3transcriptionToText({ file: `TranscriptionJob_${audioNumber}_${filename}.json` });
+            const mp3Url = await textToSpeechPolly(transcriptText, languageListener);
+            console.log("mp3url : ", mp3Url)
 
-//    await textToSpeechPolly(transcriptText)
-    await speechDownloadPolly(mp3Url)
+            await speechDownloadPolly(mp3Url)
+            const audioFilePath = path.join(__dirname, 'downloads', mp3Url)
 
-    const audioFilePath = path.join(__dirname, 'downloads', mp3Url);
+
+
+
     return res.sendFile(audioFilePath);
 
+    }
+
 });
-
-
 app.get("/database", async (req, res) => {
     try {
         console.log("name is ");
@@ -141,6 +163,8 @@ app.post("/database", (req, res) => {
 });
 
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
 });
+//    await textToSpeechPolly(transcriptText)
+//    await s3transcriptionToText({ file: `TranscriptionJob_${audioNumber}_${filename}.json` });
