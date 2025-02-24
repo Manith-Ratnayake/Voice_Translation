@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect }  from "react";
 import { languagesMap } from './languages';
 
+
 const Sender = () => {
 
 
@@ -17,6 +18,21 @@ const Sender = () => {
     const [processedAudioUrl, setProcessedAudioUrl] = useState(null); 
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
+
+   
+    const socket = new WebSocket("ws://")
+
+
+    socket.onopen = () => {
+      fetch("")
+        .then(response => response.blob())
+        .then(blob => {
+          socket.send(blob);
+          console.log("Audio File is sent");
+
+        })
+        .catch(error => console.error("Error fecthing audio : ", error))
+    }
 
 
     const handleAudioFile = async (audioBlob) => {
@@ -125,21 +141,21 @@ const Sender = () => {
 
     
     const sendMessageDatabase = async (yourIp) => {
-        try {
-          const response = await fetch(`http://${hostingIpAddress}:3000/database`, {
-                method: "PUT",
-                headers: { "Content-Type": "application/json", },
-                body: JSON.stringify({ yourIp }), 
-          });
+        // try {
+        //   const response = await fetch(`http://${hostingIpAddress}:3000/database`, {
+        //         method: "PUT",
+        //         headers: { "Content-Type": "application/json", },
+        //         body: JSON.stringify({ yourIp }), 
+        //   });
 
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          const text = await response.json();
-          console.log(text['message']['0']['ip']);
-        } catch (error) {
-          console.error("Error sending message:", error);
-        }
+        //   if (!response.ok) {
+        //     throw new Error("Network response was not ok");
+        //   }
+        //   const text = await response.json();
+        //   console.log(text['message']['0']['ip']);
+        // } catch (error) {
+        //   console.error("Error sending message:", error);
+        // }
     };
     
 
@@ -290,12 +306,6 @@ const Sender = () => {
             <div className="C" style={{ width:'50%',padding: '20px',boxSizing:'border-box',backgroundColor: 'grey' }}>
                 other person without speaking
             </div>
-
-
-
-
-
-
 
 
         </div>

@@ -1,25 +1,38 @@
-import WebSocket  from "ws";    
 import express from "express";
+import http from "http";
 import path from "path";
 import fs from "fs";
 import cors from "cors";
-import mydb from "./mysql.js";
 import multer from "multer";
-import uploadFileToS3 from './s3.js';
+import { Server } from "socket.io"
 
+import { mydb }  from "./mysql.js";
+import { uploadFileToS3 } from './s3.js';
 import { triggerTranscriptionJob } from './transcribe_create_job.js';
 import { istranscriptionCompleted } from './transcribe_list.js';
 import { s3transcriptionToText } from "./s3Get.js";
 import { textToSpeechPolly } from "./polly.js";
 import { speechDownloadPolly } from "./s3GetPolly.js";
 
+
 const app = express();
+const server = http.createServer(app)
+const io = new Server (server)
 const PORT = 3000;
-const wss = new WebSocket.Server({ port: 3001}); 
+
 
 
 app.use(cors());
 app.use(express.json());
+
+
+io.on('connection', (socket) => {
+  const userIP = socket.hanshake.address;
+  users.set(userIP, socket.id);
+  console.log("Hi a new user connected right now ", userIP);
+  
+});
+
 
 
 try {
@@ -27,23 +40,6 @@ try {
 } catch (err) {
     console.error("Error creating uploads directory:", err);
 }
-
-
-
-wss.on('connection', (ws) => {
-    console.log('A new client connected!');
-
-    ws.on('message', (message) => {
-        console.log('Received from client:', message);
-        ws.send('Hello from server: ' + message);
-    });
-
-    ws.on('close', () => {
-        console.log('Client disconnected');
-    });
-
-    ws.send('Welcome to the WebSocket server!');
-});
 
 
 
@@ -141,6 +137,6 @@ app.post("/database", (req, res) => {
 });
 
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`🚀 Server running at http://localhost:${PORT}`);
 });

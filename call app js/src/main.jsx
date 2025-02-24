@@ -1,7 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import Sender from './Sender.jsx'
+//import Main from './Sender3.jsx'
+import AudioRecord from './Sender4.jsx'
+import { Connection } from './Connection.jsx'
+import Receiver from './Receiver.jsx'
 //import Login from './Login.jsx'
 
 // import Receiver from './Receiver.jsx'
@@ -10,6 +13,8 @@ import Sender from './Sender.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-      <Sender/>
+      <Connection/>
+      <AudioRecord/>
+      <Receiver/>
   </StrictMode>,
 )

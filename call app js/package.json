@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 8091",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -26,3 +26,7 @@
     "vite": "^6.1.0"
   }
 }
+
+
+
+
