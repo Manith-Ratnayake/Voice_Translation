@@ -4,7 +4,7 @@
 
 export const Connection = () => {
 
-   const socket = io("http://localhost:3000");
+   const socket = io("https://manithbbratnayake.com:3000");
    
 
    socket.on('connect', () => {

@@ -1,38 +1,66 @@
 import express from "express";
-import http from "http";
+import https from "https";
 import path from "path";
 import fs from "fs";
 import cors from "cors";
 import multer from "multer";
 import { Server } from "socket.io"
 
-import { mydb }  from "./mysql.js";
-import { uploadFileToS3 } from './s3.js';
-import { triggerTranscriptionJob } from './transcribe_create_job.js';
-import { istranscriptionCompleted } from './transcribe_list.js';
-import { s3transcriptionToText } from "./s3Get.js";
-import { textToSpeechPolly } from "./polly.js";
-import { speechDownloadPolly } from "./s3GetPolly.js";
 
+const options = {
+    cert: fs.readFileSync('C:\\mnginx-1.26.3\\detailsofthewebsite\\certificate.crt'),
+    key: fs.readFileSync('C:\\mnginx-1.26.3\\detailsofthewebsite\\private.key'),
+};
+
+
+const corsOptions = {
+    origin: '*', // Allow only your frontend domain
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"],
+    credentials: true, // Enable credentials if needed
+};
+  
+  
 
 const app = express();
-const server = http.createServer(app)
-const io = new Server (server)
 const PORT = 3000;
+const server = https.createServer(options, app);
 
 
-
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
+const io = new Server(server, {
+    cors: {
+      origin: 'https://www.manithbbratnayake.com', // Allow only your frontend domain
+      methods: ['GET', 'POST'],
+      credentials: true,  // If you're passing cookies or tokens
+    }
+  });
 
-io.on('connection', (socket) => {
-  const userIP = socket.hanshake.address;
-  users.set(userIP, socket.id);
-  console.log("Hi a new user connected right now ", userIP);
+
+
+// io.on('connection', (socket) => {
+//   const userIP = socket.hanshake.address;
+//   users.set(userIP, socket.id);
+//   console.log("Hi a new user connected right now ", userIP);
   
-});
-
+// });
+io.on('connection', (socket) => {
+    console.log("A user connected: ", socket.id);
+  
+    // Example event: Listen for a message from the client
+    socket.on('message', (data) => {
+      console.log('Message received:', data);
+      // Broadcast the message to all connected clients
+      io.emit('message', data);
+    });
+  
+    // Disconnect event
+    socket.on('disconnect', () => {
+      console.log("A user disconnected:", socket.id);
+    });
+  });
 
 
 try {
@@ -60,7 +88,59 @@ app.get("/", ( req, res) => {
 });
 
 
+server.listen(PORT, () => {
+    console.log(`🚀 Server running at https://localhost:${PORT}`);
+});
 
+
+
+
+
+
+
+
+
+// app.get("/database", async (req, res) => {
+//     try {
+//         console.log("name is ");
+        
+//         // Start connection
+//         const connectionMessage = await mydb.startConnection();
+//         console.log(connectionMessage);
+        
+//         // Fetch people
+//         const people = await mydb.searchPeople();
+//         console.log(people);
+        
+//         // Close connection
+//         mydb.closeConnection();
+        
+//         // Respond with the fetched data
+//         res.json({ message: people });
+//     } catch (error) {
+//         console.error("Error: ", error);
+//         res.status(500).json({ message: "Internal server error", error });
+//     }
+// });
+
+
+// app.post("/database", (req, res) => {
+//     const { message } = req.body; // Use req.body to get the message
+//     console.log("name is ", message);
+//     res.send("Hi");
+// });
+
+
+// https.createServer(options, app).listen(PORT, () => {
+
+
+
+//     // server.listen(PORT, '0.0.0.0', () => {
+//         console.log(`🚀 Server running at http://localhost:${PORT}`);
+//     });
+    
+
+/*
 let audioNumber = -1;
 app.post("/uploads", upload.single("audio"), async (req, res) => {
     
@@ -106,37 +186,12 @@ app.post("/uploads", upload.single("audio"), async (req, res) => {
 });
 
 
-app.get("/database", async (req, res) => {
-    try {
-        console.log("name is ");
-        
-        // Start connection
-        const connectionMessage = await mydb.startConnection();
-        console.log(connectionMessage);
-        
-        // Fetch people
-        const people = await mydb.searchPeople();
-        console.log(people);
-        
-        // Close connection
-        mydb.closeConnection();
-        
-        // Respond with the fetched data
-        res.json({ message: people });
-    } catch (error) {
-        console.error("Error: ", error);
-        res.status(500).json({ message: "Internal server error", error });
-    }
-});
 
-
-app.post("/database", (req, res) => {
-    const { message } = req.body; // Use req.body to get the message
-    console.log("name is ", message);
-    res.send("Hi");
-});
-
-
-server.listen(PORT, () => {
-    console.log(`🚀 Server running at http://localhost:${PORT}`);
-});
+//import { mydb }  from "./mysql.js";
+//import { uploadFileToS3 } from './s3.js';
+import { triggerTranscriptionJob } from './transcribe_create_job.js';
+import { istranscriptionCompleted } from './transcribe_list.js';
+import { s3transcriptionToText } from "./s3Get.js";
+import { textToSpeechPolly } from "./polly.js";
+import { speechDownloadPolly } from "./s3GetPolly.js";
+*/
