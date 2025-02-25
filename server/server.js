@@ -30,11 +30,12 @@ const server = https.createServer(options, app);
 app.use(cors(corsOptions));
 app.use(express.json());
 
+
 const io = new Server(server, {
     cors: {
-      origin: 'https://www.manithbbratnayake.com', // Allow only your frontend domain
+      origin: ['https://www.manithbbratnayake.com', 'https://manithbbratnayake.com'], 
       methods: ['GET', 'POST'],
-      credentials: true,  // If you're passing cookies or tokens
+      credentials: true,  
     }
   });
 
@@ -47,19 +48,32 @@ const io = new Server(server, {
   
 // });
 io.on('connection', (socket) => {
-    console.log("A user connected: ", socket.id);
+
+    const userIP = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address;
+    console.log("A user connected: ", socket.id, userIP);
   
-    // Example event: Listen for a message from the client
     socket.on('message', (data) => {
       console.log('Message received:', data);
       // Broadcast the message to all connected clients
       io.emit('message', data);
     });
   
-    // Disconnect event
+
+    socket.on("audio", (audioData) => {
+        console.log("Receiving audio data...");
+        const filePath = `uploads/${userIP}${Date.now()}.wav`;
+        fs.writeFileSync(filePath, Buffer.from(audioData));
+        console.log(`Audio saved: ${filePath}`);
+        
+    });
+
+
     socket.on('disconnect', () => {
       console.log("A user disconnected:", socket.id);
     });
+
+
+
   });
 
 
@@ -88,13 +102,15 @@ app.get("/", ( req, res) => {
 });
 
 
-server.listen(PORT, () => {
-    console.log(`🚀 Server running at https://localhost:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running at https://manithbbratanayake:${PORT}`);
 });
 
 
 
-
+async function AudioProcessing() {
+    
+}
 
 
 
