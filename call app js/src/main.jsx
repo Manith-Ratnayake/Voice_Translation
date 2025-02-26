@@ -1,19 +1,18 @@
 import { StrictMode } from 'react'
+import { BrowserRouter, Routes, Route} from "react-router-dom"
 import { createRoot } from 'react-dom/client'
 
-//import Main from './Sender3.jsx'
-import AudioRecord from './Sender4.jsx'
-import { Connection } from './Connection.jsx'
-import Receiver from './Receiver.jsx'
 import Frontend from './Frontend.jsx'
-//import Login from './Login.jsx'
-
-// import Receiver from './Receiver.jsx'
-// import DatabaseConnection from "./DatabaseConnection.jsx"
+import {Auth} from './Auth.jsx'
 
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-      <Frontend/>
+    <BrowserRouter>
+        <Routes>
+              <Route path="/" element={<Auth/>} />          
+              <Route path="/Frontend" element={<Frontend/>} />
+        </Routes>
+    </BrowserRouter>
   </StrictMode>,
-)
+);

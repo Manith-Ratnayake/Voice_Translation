@@ -11,8 +11,6 @@ export default function Frontend() {
     const [isRecording, setIsRecording] = useState(false);
     const [audioUrl, setAudioUrl] = useState(null);
 
-    const [receivedAudioUrl, setReceivedAudioUrl] = useState(null);
-
   
     const [processedAudioUrl, setProcessedAudioUrl] = useState(null); 
     const mediaRecorderRef = useRef(null);
@@ -82,7 +80,7 @@ export default function Frontend() {
             const audioData = reader.result; 
     
             if (socketRef.current) {
-                socketRef.current.emit("audio", audioData, speakerLanguage);  
+                socketRef.current.emit("audio", audioData);  
                 console.log("Audio file sent via Socket.io");
             } else {
                 console.error("Socket is not connected");
@@ -99,16 +97,10 @@ export default function Frontend() {
         socketRef.current = io("https://www.manithbbratnayake.com:3000");
 
         socketRef.current.on("connect", () => {
-          console.log("Connected to the server");
+        console.log("Connected to the server");
         });
 
         socketRef.current.emit("message", "Hello Server");
-
-        socket.Ref.current.on("recivedAudio", (audioData) => {
-          console.log("Audio is received")
-          setReceivedAudioUrl(audioData)
-        });
-
 
         socketRef.current.on("disconnect", () => {
         console.log("Disconnected from the server");
@@ -118,7 +110,8 @@ export default function Frontend() {
     return () => {
         if (socketRef.current) {
             socketRef.current.disconnect();
-        }};
+        }
+       };
     },[]); 
 
 // IP ADDRESS & LANGUAGE 
@@ -147,30 +140,18 @@ export default function Frontend() {
     const [listenerId, setListenerId] = useState("");
     const [searchPersonUI, setSearchPersonUI] = useState(true);
 
-    const [errorMessage, setErrorMessage] = useState("");
-
-
     const searchPersonChange= (event) => {
         setListenerId(event.target.value);  // Update the state with the input value
     };
 
     
-    const searchPersonButtonClick = () =>{
-
-        let isPersonValid = checkPersonInDatabase(listenerId);
-      
-        
-        if (isPersonValid) {
-          setErrorMessage("")
-          setSearchPersonUI(prevState => !prevState);
-        }else {
-          setErrorMessage("The person id is either invalid or not exist ")
-        }
+    const searchPersonButtonClick = (event) =>{
+        setSearchPersonUI(prevState => !prevState);
     }
     
 
 
-    const checkPersonInDatabase = () => {
+    const handleSearchClick = () => {
         if (socketRef.current) {
             socketRef.current.emit("searchListener", listenerId); 
             console.log("Listener ID sent:", listenerId);
@@ -248,30 +229,15 @@ export default function Frontend() {
                       <div>
                           <input type="text" className="form-control" id="inputBox"
                            aria-label="Default" placeholder="Listener ID" value={listenerId} onChange={searchPersonChange}/>
-                          <button className="btn btn-primary" onClick={searchPersonButtonClick}>Search</button>
-
-                          <h5>{errorMessage}</h5>
-
-
+                          <button className="btn btn-primary" onClick={searchPersonButtonClick}  >Search</button>
+                    
                       </div>
                     ) : (
                       <button className="btn btn-warning" onClick={searchPersonButtonClick}>Disconnect</button>
                     )}
                 </div>
 
-                  
-                <div>
-      
-                    {receivedAudioUrl && (
-                        <div>
-                            <h3>Recived Audio</h3>
-                            <audio controls>
-                                <source src={receivedAudioUrl} type="audio/webm" />
-                                Your browser does not support the audio element.
-                            </audio>
-                        </div>
-                    )}
-                </div>
+                
 
                 
       </>

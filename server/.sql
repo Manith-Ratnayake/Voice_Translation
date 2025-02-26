@@ -1,12 +1,12 @@
 CREATE database VoiceTranslationProgram;
-use  VoiceTranslationProgram;
+USE VoiceTranslationProgram;
 
 
 CREATE TABLE USERS (
-	ip int,
+	  ip varchar(15),
     username varchar(50),
     language_speak varchar(50),
-    PRIMARY KEY (ip)
+    PRIMARY KEY (username)
 );
 
 

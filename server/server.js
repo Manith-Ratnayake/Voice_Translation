@@ -7,6 +7,16 @@ import multer from "multer";
 import { Server } from "socket.io"
 
 
+import { mydb }  from "./mysql.js";
+import { uploadFileToS3 } from './s3.js';
+import { triggerTranscriptionJob } from './transcribe_create_job.js';
+import { istranscriptionCompleted } from './transcribe_list.js';
+import { s3transcriptionToText } from "./s3Get.js";
+import { textToSpeechPolly } from "./polly.js";
+import { speechDownloadPolly } from "./s3GetPolly.js";
+
+
+
 const options = {
     cert: fs.readFileSync('C:\\mnginx-1.26.3\\detailsofthewebsite\\certificate.crt'),
     key: fs.readFileSync('C:\\mnginx-1.26.3\\detailsofthewebsite\\private.key'),
@@ -14,7 +24,7 @@ const options = {
 
 
 const corsOptions = {
-    origin: '*', // Allow only your frontend domain
+    origin: '*', 
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
     credentials: true, // Enable credentials if needed
@@ -41,40 +51,136 @@ const io = new Server(server, {
 
 
 
-// io.on('connection', (socket) => {
-//   const userIP = socket.hanshake.address;
-//   users.set(userIP, socket.id);
-//   console.log("Hi a new user connected right now ", userIP);
-  
-// });
+let connectedUsers = {};
+
+
 io.on('connection', (socket) => {
 
-    const userIP = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address;
-    console.log("A user connected: ", socket.id, userIP);
-  
-    socket.on('message', (data) => {
-      console.log('Message received:', data);
-      // Broadcast the message to all connected clients
-      io.emit('message', data);
-    });
-  
+    //const userIP = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address;
+    const userID = socket.handshake.query.userID; 
+    connectedUsers[userID] = socket.id; 
+    console.log("A user connected: ", socket.id, userID);
 
-    socket.on("audio", (audioData) => {
+
+// PLANNING TO REMOVE BELOW
+  /* 
+    socket.on("audio", (audioData, speakerLanguage) => {
         console.log("Receiving audio data...");
-        const filePath = `uploads/${userIP}${Date.now()}.wav`;
+        const filePath = filePath`uploads/${userIP}${Date.now()}.wav`;
         fs.writeFileSync(filePath, Buffer.from(audioData));
         console.log(`Audio saved: ${filePath}`);
-        
+        AudioProcessing(audioData, speakerLanguage)    
     });
+
+*/
+    socket.on("searchListener", (listenerID) => {
+      console.log("Received Listener id : ", listenerID);
+
+      mydb.startConnection()
+        .then(() => {
+          return mydb.searchPeople(listenerID)
+        })
+        
+        .then((results) => {
+          mydb.closeConnection();
+        })
+
+        .catch((err) => {
+          mydb.closeConnection();
+        })
+          
+    });
+
+
+
+
+    socket.on('sendaudio', (audioFile, recipientUserID) => {
+
+      const recipientUserID  = connectedUsers[recipientUserID];
+
+      if (recipientUserID) {
+        io.to(recipientUserID).emit('receiveAuido', audioFile)
+        console.log("Audio file sent from ${}")
+      }
+      else {
+        console.log("Recipient with that id is not connected ")
+      }
+      
+    });
+
+
+    socket.on('disconnect', () => {
+      for (const userID in connectedUsers){
+        if (connectedUsers[userID]=== socket.id){
+          delete connectedUser[userID]
+        }
+      }
+    });
+
+
+
+    //socket.on("userConnection", (listenerID) =>{
+       //if listenerID in onlinePeople {
+            
+
+
+       //} 
+    //});
+
+ 
+    
+
 
 
     socket.on('disconnect', () => {
       console.log("A user disconnected:", socket.id);
     });
 
-
-
   });
+
+
+
+app.post('/signin', (req, res) => {
+
+  let email = req.body.email;
+  let password = req.body.password;
+
+
+  if (user) {
+      res.json({message : "Sign In Successful"})
+  } else {
+    res.status(400).json({ message : "Invalid credentials"})
+  }
+
+
+}
+
+
+
+app.post('/signup' , (req, res) => {
+
+
+    let email = req.body.email;
+    let password = req.body.password;
+
+
+    
+
+
+    if (user) {
+      res.json({message : "Sign In Successful"})
+    } else {
+      res.status(400).json({message : "Invalid credentials"})
+    }
+
+}
+
+
+
+
+
+
+
 
 
 try {
@@ -108,12 +214,29 @@ server.listen(PORT, '0.0.0.0', () => {
 
 
 
-async function AudioProcessing() {
-    
+const AudioProcessing = (audioData) => {
+
+
+    await uploadFileToS3(filename);
+    await uploadFileToS3(filename);
+    console.log("audionumber before transcription start :", audioNumber )
+    await triggerTranscriptionJob(filename, audioNumber, languageSender)
+    console.log("audionumber before transcription finished :", audioNumber )
+    await istranscriptionCompleted(`TranscriptionJob_${audioNumber}_${filename}`)
+    //    await s3transcriptionToText({ file: `TranscriptionJob_${audioNumber}_${filename}.json` });
+    let transcriptText = await s3transcriptionToText({ file: `TranscriptionJob_${audioNumber}_${filename}.json` });
+    const mp3Url = await textToSpeechPolly(transcriptText, languageListener);
+    console.log("mp3url : ", mp3Url)
+    await textToSpeechPolly(transcriptText)
+    await speechDownloadPolly(mp3Url)
+    const audioFilePath = path.join(__dirname, 'downloads', mp3Url);
+    return res.sendFile(audioFilePath);
+
+
+
+
+
 }
-
-
-
 
 
 // app.get("/database", async (req, res) => {

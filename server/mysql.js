@@ -3,12 +3,11 @@ import mysql from 'mysql2';
 
 dotenv.config();  
 
-
-const mydb = {
+const serverDatabase = {
   connection: null,
 
-  // Function to start connection
   startConnection() {
+
     this.connection = mysql.createConnection({
       host: process.env.DB_HOST,
       user: process.env.DB_USER,
@@ -27,24 +26,78 @@ const mydb = {
     });
   },
 
-  // Function to search people
-  searchPeople() {
-    return new Promise((resolve, reject) => {
-      this.connection.query('SELECT * FROM USERS', (err, results) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(results);
-        }
-      });
-    });
+
+
+  async searchPeople(userID) {
+
+    try{
+      const [rows, fields] = await this.connection.promise().query("SELECT userID FROM USERS WHERE userID = ? ",[userID])
+      return rows
+
+    } catch(error){
+      console.log(error);
+    }
   },
 
-  // Function to close connection
-  closeConnection() {
-    this.connection.end();
-    console.log('Connection is closed');
+
+  async authenticationSignIn(userID, password) {
+    
+    
+    try{
+      const [rows, fields] = await this.connection.promise().query("SELECT userID FROM USERS WHERE userID = ? AND password = ? ",[userID, password])
+
+      if (rows.length > 0)  {
+        return true
+      } else {
+        return false
+      }
+
+
+    } catch(error){
+      console.log(error);
+    }
   },
+
+
+  
+  async authenticationSignUp(userID, password) {
+
+      try {
+        const [rows, fields] = await this.connection.promise().query("SELECT userID FROM USERS WHERE userID = ? AND PASSWORD = ?", [userID, password])
+
+        if (rows.length === 0 ) {
+          await this.connection.promise().query("INSERT INTO USERS (userID, password) VALUES (? , ? )", [userID, password])
+        }
+        
+
+      } catch(error){
+        console.log(error)
+      };
+
+  }, 
+
+
+  closeConnection() {
+
+    if(this.connection){
+      this.connection.end((err) => {
+        
+        if (err) {
+          console.log('Connection is closed');
+        }
+
+        else {
+          console.log("Connection is closed successfully")
+        }
+
+      });
+    } else {
+        console.log("No active connection to close");
+    }
+  }
+
 };
 
-export default mydb;
+
+
+export default serverDatabase;
