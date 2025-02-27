@@ -56,9 +56,7 @@ let connectedPairs = [];
 
 io.on('connection', (socket) => {
 
-    //const userIP = socket.handshake.headers['x-forwarded-for'] || socket.handshake.address;
     const { userID, speakerLanguage } = socket.handshake.query;
-
     console.log("A user connected: ", socket.id, userID);
     
     const user = {
@@ -70,33 +68,21 @@ io.on('connection', (socket) => {
     connectedUsers.push(user);
     console.log(connectedUsers)
 
-    socket.on("searchListener", (listenerID) => {
+    socket.on("searchListener", (listenerID, speakerID) => {
       console.log("Received Listener id : ", listenerID);
 
       const listener = connectedUsers.find(user => user.userID === listenerID);
 
       if (listener) {
+          connectedPairs.push([listenerID, speakerID ])
+          socket.emit("searchListenerAnswer", true);
+      }
 
-        const existingPair = connectedPairs.find( pair => 
-          (pair.speaker === userID && pair.Listener === listenerID) || 
-          (pair.speaker === listenerID && pair.listener === userID)
-        );
-
-        if (!existingPair) {
-          connectedPairs.push({speaker : userID, listener : listenerID})
-        }
-
-        
-        socket.emit("searchListenerAnswer", true);
-        console.log("SOCKET EMITTE TRUE");
-        console.log(connectedUsers)
-
-      } else {
+      else {
         socket.emit("searchListenerAnswer", false);
         console.log("Socket emitted false");
-        console.log(connectedUsers, " ---")
-
       }
+
     });
 
     socket.on('SpeakingLanguage', ({ userID, newSpeakerLanguage }) => {
@@ -113,23 +99,26 @@ io.on('connection', (socket) => {
   });
   
 
-    socket.on('sendaudio', (audioFile, speakerLanguage) => {
+    socket.on('sendaudio', (audioFile, userID,  speakerLanguage) => {
 
-      console.log("RECIPIENT USER ID : ", speakerLanguage)
-      const something  = connectedUsers.find(user => user.ID === recipientUserID)?.socketID;
-      console.warn("SEND AUDIO TEST : ", something);
-      if (something) {
+      console.log("send audio received an audio file : ")
+      let listenerUserID  = connectedPairs.find(user => user.includes(userID));
+      console.warn("SEND AUDIO TEST : ", listenerUserID);
+
+
+      if (listenerUserID) {
         
-        const recipientSocketID = recipient.socketID; 
-        const recipientLanguage = recipient.language;
+        let listenerSocketID = listenerUserID.socketID;
+        let listenerSpeakingLanguage = listenerUserID.SpeakingLanguage;
+        
 
-
-        io.to(recipientUserID).emit('receiveAuido', audioFile)
+        AudioProcessing(audioFile, speakerLanguage, listenerSpeakingLanguage)
+        io.to(listenerSocketID).emit('receiveAuido', audioFile)
         console.log("Audio file sent from ${}")
-        AudioProcessing(audioFile, recipientLanguage)
-      }
-      else {
+
+      } else {
         console.log("Recipient with that id is not connected ")
+        socket.emit("listenerIsDisconnected", false)
       }
       
     });
@@ -208,13 +197,6 @@ app.post('/signup' , async (req, res) => {
 })
 
 
-
-
-
-
-
-
-
 try {
     fs.mkdirSync("uploads", { recursive: true });
 } catch (err) {
@@ -263,107 +245,7 @@ const AudioProcessing = async (filename, speakerLanguage, listenerLangauge) => {
     const audioFilePath = path.join(__dirname, 'downloads', mp3Url);
     return res.sendFile(audioFilePath);
 */   
-
     return res.sendFile(filename)
 
 
-
-
 }
-
-
-// app.get("/database", async (req, res) => {
-//     try {
-//         console.log("name is ");
-        
-//         // Start connection
-//         const connectionMessage = await mydb.startConnection();
-//         console.log(connectionMessage);
-        
-//         // Fetch people
-//         const people = await mydb.searchPeople();
-//         console.log(people);
-        
-//         // Close connection
-//         mydb.closeConnection();
-        
-//         // Respond with the fetched data
-//         res.json({ message: people });
-//     } catch (error) {
-//         console.error("Error: ", error);
-//         res.status(500).json({ message: "Internal server error", error });
-//     }
-// });
-
-
-// app.post("/database", (req, res) => {
-//     const { message } = req.body; // Use req.body to get the message
-//     console.log("name is ", message);
-//     res.send("Hi");
-// });
-
-
-// https.createServer(options, app).listen(PORT, () => {
-
-
-
-//     // server.listen(PORT, '0.0.0.0', () => {
-//         console.log(`🚀 Server running at http://localhost:${PORT}`);
-//     });
-    
-
-/*
-let audioNumber = -1;
-app.post("/uploads", upload.single("audio"), async (req, res) => {
-    
-
-    if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
-    }
-
-
-    const languageSender    = req.body.languageSender;
-    const languageListener  = req.body.languageListener;
-    const senderIpAddress   = req.body.senderIpAddress;
-    const listenerIpAddress = req.body.listenerIpAddress
-    const filename          = req.file.filename; 
-
-
-    console.log(`✅ File received: ${req.file.filename}`);
-    console.log(`Language: ${languageListener}`);
-    console.log("audionumber before s3 file start :", audioNumber )
-
-
-    await uploadFileToS3(filename);
-
-    console.log("audionumber before transcription start :", audioNumber )
-
-    await triggerTranscriptionJob(filename, audioNumber, languageSender)
-    
-    console.log("audionumber before transcription finished :", audioNumber )
-    await istranscriptionCompleted(`TranscriptionJob_${audioNumber}_${filename}`)
-
-
-    //    await s3transcriptionToText({ file: `TranscriptionJob_${audioNumber}_${filename}.json` });
-    let transcriptText = await s3transcriptionToText({ file: `TranscriptionJob_${audioNumber}_${filename}.json` });
-    const mp3Url = await textToSpeechPolly(transcriptText, languageListener);
-    console.log("mp3url : ", mp3Url)
-
-//    await textToSpeechPolly(transcriptText)
-    await speechDownloadPolly(mp3Url)
-
-    const audioFilePath = path.join(__dirname, 'downloads', mp3Url);
-    return res.sendFile(audioFilePath);
-
-});
-
-
-
-//import { mydb }  from "./mysql.js";
-//import { uploadFileToS3 } from './s3.js';
-import { triggerTranscriptionJob } from './transcribe_create_job.js';
-import { istranscriptionCompleted } from './transcribe_list.js';
-import { s3transcriptionToText } from "./s3Get.js";
-import { textToSpeechPolly } from "./polly.js";
-import { speechDownloadPolly } from "./s3GetPolly.js";
-*/

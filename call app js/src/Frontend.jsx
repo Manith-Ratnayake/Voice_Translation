@@ -83,7 +83,7 @@ export default function Frontend() {
             const audioData = reader.result; 
     
             if (socketRef.current) {
-                socketRef.current.emit("sendaudio", audioData, speakerLanguage, );  
+                socketRef.current.emit("sendaudio", audioData, userID,  speakerLanguage);  
                 console.log("Audio file sent via Socket.io");
             } else {
                 console.error("Socket is not connected");
@@ -228,7 +228,7 @@ export default function Frontend() {
                 return;
             }
     
-            socketRef.current.emit("searchListener", listenerId);
+            socketRef.current.emit("searchListener", listenerId, userID);
             
             // ✅ `.once()` ensures the listener is added only once and is removed after it runs.
             socketRef.current.on("searchListenerAnswer", (answer) => {
