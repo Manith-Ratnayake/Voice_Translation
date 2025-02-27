@@ -3,7 +3,7 @@ import mysql from 'mysql2';
 
 dotenv.config();  
 
-const serverDatabase = {
+export const mydb = {
   connection: null,
 
   startConnection() {
@@ -83,16 +83,16 @@ const serverDatabase = {
       this.connection.end((err) => {
         
         if (err) {
-          console.log('Connection is closed');
+          console.log('Database Connection is closed');
         }
 
         else {
-          console.log("Connection is closed successfully")
+          console.log("Database Connection is closed successfully")
         }
 
       });
     } else {
-        console.log("No active connection to close");
+        console.log("No active daabase connection to close");
     }
   }
 
@@ -100,4 +100,3 @@ const serverDatabase = {
 
 
 
-export default serverDatabase;

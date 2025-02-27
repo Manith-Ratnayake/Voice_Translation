@@ -4,7 +4,7 @@ import path from "path";
 
 
 
-const uploadFileToS3 = async (filename) => {
+export const uploadFileToS3 = async (filename) => {
   const bucket = "voicebuketmanithratnayake";
 
   const client = new S3Client({

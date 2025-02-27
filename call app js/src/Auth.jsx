@@ -1,5 +1,5 @@
 import { useState } from "react"
-
+import { useNavigate } from "react-router-dom";
 
 
 export function Auth(){
@@ -8,6 +8,9 @@ export function Auth(){
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isSignUp, setIsSignUp] = useState(true)
+
+  const navigate = useNavigate();
+
 
 
   const toggleAuthMode = () => {
@@ -19,8 +22,8 @@ export function Auth(){
     e.preventDefault();
 
 
-  const url = isSignUp ? "https://www.manithbbratnayake.com/signup" : "https://www.manithbbratnayake.com/signin";
-
+  const url = isSignUp ? "https://www.manithbbratnayake.com:3000/signup" : "https://www.manithbbratnayake.com:3000/signin";
+  console.log("Hello Sign up start")
 
   
   try {
@@ -40,7 +43,10 @@ export function Auth(){
       if (response.ok) {
         const data = await response.json();
         console.log(data); // Success message from the backend
-        navigate("/frontend")      
+        navigate(`/frontend?userID=${email}`);
+
+
+
       } else {
         throw new Error('Error registering user', e);
       }
