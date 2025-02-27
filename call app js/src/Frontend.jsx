@@ -10,7 +10,7 @@ export default function Frontend() {
     const [permission, setPermission] = useState(false);
     const [stream, setStream] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
-    const [audioUrl, setAudioUrl] = useState(null);
+    const [audioUrl, setAudioUrl] = useState([]);
 
     const [receivedAudioUrl, setReceivedAudioUrl] = useState(null);
 
@@ -23,7 +23,7 @@ export default function Frontend() {
     const getMicrophonePermission = async () => {
         if ("MediaRecorder" in window) {
             try {
-                const streamData = await navigator.mediaDevices.getUserMedia({
+               const streamData = await navigator.mediaDevices.getUserMedia({
                     audio: true,
                     video: false,
                 });
@@ -58,8 +58,10 @@ export default function Frontend() {
         mediaRecorder.onstop = () => {
             const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
             audioChunksRef.current = [];
-            setAudioUrl(URL.createObjectURL(audioBlob));
-            handleAudioFile(audioBlob); 
+            let newAudioUrl = (URL.createObjectURL(audioBlob));
+            setAudioUrl(previousAudioUrl => [...previousAudioUrl, newAudioUrl]);
+            sendAudioToListener(audioBlob); 
+
         };
 
         mediaRecorder.start();
@@ -77,7 +79,7 @@ export default function Frontend() {
     };
 
 
-    const handleAudioFile = (audioBlob) => {
+    const sendAudioToListener = (audioBlob) => {
         const reader = new FileReader();
         reader.readAsArrayBuffer(audioBlob);
         
@@ -343,17 +345,20 @@ export default function Frontend() {
                         </button>
                     ) : null}
 
-                    {audioUrl && (
-                        <div>
-                            <h3>Recorded Audio</h3>
-                            <audio controls>
-                                <source src={audioUrl} type="audio/webm" />
-                                Your browser does not support the audio element.
-                            </audio>
-                        </div>
-                    )}
-                </div>
 
+                {audioUrl.length > 0 && (
+                  <div>
+                      <h3>Recorded Audio</h3>
+                      {audioUrl.map((url, index) => (
+                          <audio key={index} controls>
+                              <source src={url} type="audio/webm" />
+                              Your browser does not support the audio element.
+                          </audio>
+                      ))}
+                  </div>
+              )}
+
+                </div>
                 
       </>
     )
