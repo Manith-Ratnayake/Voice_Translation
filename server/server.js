@@ -101,19 +101,26 @@ io.on('connection', (socket) => {
 
     socket.on('sendaudio', (audioFile, userID,  speakerLanguage) => {
 
+      console.log("Audio User Id : ", userID);
       console.log("send audio received an audio file : ")
-      let listenerUserID  = connectedPairs.find(user => user.includes(userID));
+      let pairedConnectedUsers = connectedPairs.find(user => user.includes(userID));
+      let listenerUserID = pairedConnectedUsers.find(id => id.userID !== userID);
       console.warn("SEND AUDIO TEST : ", listenerUserID);
+
 
 
       if (listenerUserID) {
         
-        let listenerSocketID = listenerUserID.socketID;
+        let connectedlistenerSocketID = connectedUsers.find(user  => user.userID === listenerUserID);
+        let listenerSocketID = connectedlistenerSocketID.socketID;
         let listenerSpeakingLanguage = listenerUserID.SpeakingLanguage;
         
 
-        AudioProcessing(audioFile, speakerLanguage, listenerSpeakingLanguage)
-        io.to(listenerSocketID).emit('receiveAuido', audioFile)
+        console.log("Before sending every details here ", connectedUsers);
+        console.log("Socket id name : ", listenerSocketID);
+
+        //AudioProcessing(audioFile, speakerLanguage, listenerSpeakingLanguage)
+        io.to(listenerSocketID).emit('receivedAudio', audioFile)
         console.log("Audio file sent from ${}")
 
       } else {
@@ -245,7 +252,7 @@ const AudioProcessing = async (filename, speakerLanguage, listenerLangauge) => {
     const audioFilePath = path.join(__dirname, 'downloads', mp3Url);
     return res.sendFile(audioFilePath);
 */   
-    return res.sendFile(filename)
+    return (filename)
 
 
 }

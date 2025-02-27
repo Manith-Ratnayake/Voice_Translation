@@ -69,6 +69,8 @@ export default function Frontend() {
 
     const stopRecording = () => {
         if (mediaRecorderRef.current && isRecording) {
+            //mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());  // Stop the stream tracks
+            //mediaRecorderRef.current = null;
             mediaRecorderRef.current.stop();
             setIsRecording(false);
         }
@@ -83,6 +85,7 @@ export default function Frontend() {
             const audioData = reader.result; 
     
             if (socketRef.current) {
+                console.log("before sending the audio file : ", userID)
                 socketRef.current.emit("sendaudio", audioData, userID,  speakerLanguage);  
                 console.log("Audio file sent via Socket.io");
             } else {
@@ -103,7 +106,9 @@ export default function Frontend() {
     useEffect(() => {
     
         socketRef.current = io("https://www.manithbbratnayake.com:3000", {
-            query: {userID, speakerLanguage}
+            query: {userID, speakerLanguage},
+            transports : ["websocket"],
+            withCredential : true,
         })
 
         socketRef.current.on("connect", () => {
@@ -112,9 +117,16 @@ export default function Frontend() {
 
         socketRef.current.emit("message", "Hello Server");
 
-        socketRef.current.on("recievedAudio", (audioData) => {
+        socketRef.current.on("receivedAudio", (audioData) => {
           console.log("Audio is received")
-          setReceivedAudioUrl(audioData)
+
+          if (audioData instanceof ArrayBuffer){
+
+              console.log("Instance of Array buffer ")
+          }
+          let receivedAudioBlob = new Blob([audioData], {type : "audio/wav"});
+          let receivedAudioObjectURL = URL.createObjectURL(receivedAudioBlob)
+          setReceivedAudioUrl(receivedAudioObjectURL)
         });
 
 
