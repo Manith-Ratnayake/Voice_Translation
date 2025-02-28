@@ -1,15 +1,15 @@
 import { StartTranscriptionJobCommand } from "@aws-sdk/client-transcribe";
 import { transcribeClient } from "./transcribeClient.js";
 
-const triggerTranscriptionJob = async (filename, number, languageCodeAWS) => {
+const triggerTranscriptionJob = async (fileName, languageCodeAWS) => {
   console.log("Inside the trigger function");
 
   const params = {
-    TranscriptionJobName: `TranscriptionJob_${number}_${filename}`,
+    TranscriptionJobName: `TranscriptionJob_${fileName}`,
     LanguageCode: languageCodeAWS,
     MediaFormat: "wav",
     Media: {
-      MediaFileUri: `s3://voicebuketmanithratnayake/${filename}`,
+      MediaFileUri: `s3://voicebuketmanithratnayake/${fileName}`,
     },
     OutputBucketName: "voiceoutputbucketmanithratnayake",
 

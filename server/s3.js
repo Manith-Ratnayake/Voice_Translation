@@ -3,21 +3,18 @@ import fs from "fs";
 import path from "path";
 
 
-
-export const uploadFileToS3 = async (filename) => {
+export const uploadFileToS3 = async (audioFile, fileName) => {
   const bucket = "voicebuketmanithratnayake";
 
   const client = new S3Client({
     region: "ap-south-1",
   });
 
-  const filePath = path.join(__dirname, 'uploads', filename);
-  const filestream = fs.createReadStream(filePath); 
 
   const input = {
     Bucket: bucket,
-    Key: filename,
-    Body: filestream,
+    Key: fileName,
+    Body: audioFile,
   };
 
   const command = new PutObjectCommand(input);

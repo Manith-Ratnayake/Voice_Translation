@@ -16,6 +16,15 @@ import { textToSpeechPolly } from "./polly.js";
 import { speechDownloadPolly } from "./s3GetPolly.js";
 
 
+export const languagesMap = new Map([
+
+  ["en-GB", "English"],
+  ["fr-FR", "French"],
+  ["hi-IN", "Hindi"],
+  ["de-DE", "German"],
+  ["ru-RU", "Russian"]
+
+]);
 
 const options = {
     cert: fs.readFileSync('C:\\mnginx-1.26.3\\detailsofthewebsite\\certificate.crt'),
@@ -119,8 +128,13 @@ io.on('connection', (socket) => {
         console.log("Before sending every details here ", connectedUsers);
         console.log("Socket id name : ", listenerSocketID);
 
-        //AudioProcessing(audioFile, speakerLanguage, listenerSpeakingLanguage)
-        io.to(listenerSocketID).emit('receivedAudio', audioFile)
+        let processedAudio = AudioProcessing(audioFile, speakerLanguage, listenerSpeakingLanguage)
+        let fullurl = "https://www.manithbbratnayake" + processedAudio
+        console.log("processedAudio : ", processedAudio);
+        console.log("full url : ", fullurl )
+
+
+        io.to(listenerSocketID).emit('receivedAudio', audioFile) // audioFile
         console.log("Audio file sent from ${}")
 
       } else {
@@ -235,24 +249,29 @@ server.listen(PORT, '0.0.0.0', () => {
 
 
 
-const AudioProcessing = async (filename, speakerLanguage, listenerLangauge) => {
+const AudioProcessing = async (audioFile, speakerLanguage, listenerLangauge) => {
 
-/*
-    await uploadFileToS3(filename);
+    console.log("Listener Language : ", listenerLangauge);
+  
+
+    let currentTime = new Date().toString();  
+    let fileName = currentTime.toString().replace(/[^0-9a-zA-Z._-]/g, "_");
+
+    await uploadFileToS3(audioFile, fileName);
     console.log("audionumber before transcription start :" )
-    await triggerTranscriptionJob(filename, audioNumber, speakerLanguage)
+
+    await triggerTranscriptionJob(fileName, speakerLanguage)
     console.log("audionumber before transcription finished :")
-    await istranscriptionCompleted(`TranscriptionJob_${filename}`)
-    //    await s3transcriptionToText({ file: `TranscriptionJob_${audioNumber}_${filename}.json` });
-    let transcriptText = await s3transcriptionToText({ file: `TranscriptionJob_${filename}.json` });
-    const mp3Url = await textToSpeechPolly(transcriptText, listenerLangauge);
+
+    await istranscriptionCompleted(`TranscriptionJob_${fileName}`)
+    console.log("transcription job finished");
+    let transcriptText = await s3transcriptionToText({ file: `TranscriptionJob_${fileName}.json` });
+  
+    let mp3Url = await textToSpeechPolly(transcriptText, listenerLangauge);
     console.log("mp3url : ", mp3Url)
     await textToSpeechPolly(transcriptText)
-    await speechDownloadPolly(mp3Url)
-    const audioFilePath = path.join(__dirname, 'downloads', mp3Url);
-    return res.sendFile(audioFilePath);
-*/   
-    return (filename)
+    let downloadedAudioUrl =   await speechDownloadPolly(mp3Url)
+    return (downloadedAudioUrl)
 
 
 }

@@ -1,4 +1,13 @@
 export const languagesMap = new Map([
+
+  ["en-GB", "English"],
+  ["fr-FR", "French"],
+  ["hi-IN", "Hindi"],
+  ["de-DE", "German"],
+  ["ru-RU", "Russian"]
+
+]);
+/*
   ["af-ZA", "Afrikaans (South Africa)"],
   ["ar-AE", "Arabic (United Arab Emirates)"],
   ["ar-SA", "Arabic (Saudi Arabia)"],
@@ -104,4 +113,4 @@ export const languagesMap = new Map([
   ["zu-ZA", "Zulu (South Africa)"]
 ]);
 
-
+*/

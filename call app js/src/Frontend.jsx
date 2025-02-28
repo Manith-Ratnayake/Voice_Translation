@@ -12,10 +12,7 @@ export default function Frontend() {
     const [isRecording, setIsRecording] = useState(false);
     const [audioUrl, setAudioUrl] = useState([]);
 
-    const [receivedAudioUrl, setReceivedAudioUrl] = useState(null);
-
-  
-    const [processedAudioUrl, setProcessedAudioUrl] = useState(null); 
+   const [receivedAudioUrl, setReceivedAudioUrl] = useState([]);
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
 
@@ -128,7 +125,7 @@ export default function Frontend() {
           }
           let receivedAudioBlob = new Blob([audioData], {type : "audio/wav"});
           let receivedAudioObjectURL = URL.createObjectURL(receivedAudioBlob)
-          setReceivedAudioUrl(receivedAudioObjectURL)
+          setReceivedAudioUrl(prevUrl => [...prevUrl, receivedAudioObjectURL]);
         });
 
 
@@ -291,15 +288,23 @@ export default function Frontend() {
                   
                 <div>
       
-                    {receivedAudioUrl && (
-                        <div>
-                            <h3>Recived Audio</h3>
-                            <audio controls>
-                                <source src={receivedAudioUrl} type="audio/webm" />
-                                Your browser does not support the audio element.
-                            </audio>
-                        </div>
-                    )}
+
+                {receivedAudioUrl.length > 0 && (
+                  <div>
+                      <h3>Recorded Audio</h3>
+                      {receivedAudioUrl.map((url, index) => (
+                          <audio key={index} controls>
+                              <source src={url} type="audio/webm" />
+                              Your browser does not support the audio element.
+                          </audio>
+                      ))}
+                  </div>
+              )}
+
+
+
+
+
                 </div>
 
 
@@ -334,13 +339,13 @@ export default function Frontend() {
                     ) : null}
 
                     {permission && !isRecording ? (
-                        <button onClick={startRecording} type="button" className="btn btn-light">
+                        <button onClick={startRecording} type="button" className="btn btn-success">
                             Start Speaking
                         </button>
                     ) : null}
 
                     {isRecording ? (
-                        <button onClick={stopRecording} type="button" className="btn btn-light">
+                        <button onClick={stopRecording} type="button" className="btn btn-danger">
                             Stop Speaking
                         </button>
                     ) : null}
