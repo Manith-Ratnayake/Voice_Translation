@@ -5,6 +5,7 @@ import fs from "fs";
 import cors from "cors";
 import multer from "multer";
 import { Server } from "socket.io"
+import { fileURLToPath } from 'url';
 
 
 import { mydb }  from "./mysql.js";
@@ -14,6 +15,7 @@ import { istranscriptionCompleted } from './transcribe_list.js';
 import { s3transcriptionToText } from "./s3Get.js";
 import { textToSpeechPolly } from "./polly.js";
 import { speechDownloadPolly } from "./s3GetPolly.js";
+import { translateText} from "./translate.js"
 
 
 export const languagesMap = new Map([
@@ -39,6 +41,10 @@ const corsOptions = {
     credentials: true, // Enable credentials if needed
 };
   
+
+
+
+
   
 
 const app = express();
@@ -57,6 +63,14 @@ const io = new Server(server, {
       credentials: true,  
     }
   });
+
+
+  
+  // Manually define __filename and __dirname in ES module
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+
+
 
 
 
@@ -108,7 +122,7 @@ io.on('connection', (socket) => {
   });
   
 
-    socket.on('sendaudio', (audioFile, userID,  speakerLanguage) => {
+    socket.on('sendaudio', async (audioFile, userID,  speakerLanguage) => {
 
       console.log("Audio User Id : ", userID);
       console.log("send audio received an audio file : ")
@@ -122,19 +136,29 @@ io.on('connection', (socket) => {
         
         let connectedlistenerSocketID = connectedUsers.find(user  => user.userID === listenerUserID);
         let listenerSocketID = connectedlistenerSocketID.socketID;
-        let listenerSpeakingLanguage = listenerUserID.SpeakingLanguage;
+        let listenerSpeakingLanguage = listenerUserID.speakerLanguage;
         
 
         console.log("Before sending every details here ", connectedUsers);
         console.log("Socket id name : ", listenerSocketID);
+        console.log("Listener Speaking language : ", listenerSpeakingLanguage);
 
-        let processedAudio = AudioProcessing(audioFile, speakerLanguage, listenerSpeakingLanguage)
-        let fullurl = "https://www.manithbbratnayake" + processedAudio
+        //let downloadsDir = path.join(__dirname, 'downloads');
+        let downloadsDir = path.join(__dirname, 'downloads');
+        let processedAudio = await AudioProcessing(audioFile, speakerLanguage, listenerSpeakingLanguage)
+        processedAudio = path.basename(processedAudio);
+        let lastAudioFilePath = path.join(downloadsDir, processedAudio);
+
+        
+        
+
+        console.log("download dir ", downloadsDir)
         console.log("processedAudio : ", processedAudio);
-        console.log("full url : ", fullurl )
+        console.log("last full url : ", lastAudioFilePath )
+        let audioDataSending = fs.readFileSync(lastAudioFilePath);
 
 
-        io.to(listenerSocketID).emit('receivedAudio', audioFile) // audioFile
+        io.to(listenerSocketID).emit('receivedAudio', audioDataSending) // audioFile
         console.log("Audio file sent from ${}")
 
       } else {
@@ -254,6 +278,10 @@ const AudioProcessing = async (audioFile, speakerLanguage, listenerLangauge) => 
     console.log("Listener Language : ", listenerLangauge);
   
 
+    if (!listenerLangauge){
+      listenerLangauge = "fr-FR"
+    }
+
     let currentTime = new Date().toString();  
     let fileName = currentTime.toString().replace(/[^0-9a-zA-Z._-]/g, "_");
 
@@ -266,10 +294,13 @@ const AudioProcessing = async (audioFile, speakerLanguage, listenerLangauge) => 
     await istranscriptionCompleted(`TranscriptionJob_${fileName}`)
     console.log("transcription job finished");
     let transcriptText = await s3transcriptionToText({ file: `TranscriptionJob_${fileName}.json` });
-  
-    let mp3Url = await textToSpeechPolly(transcriptText, listenerLangauge);
+
+
+    let translatedText = await translateText(transcriptText, speakerLanguage, listenerLangauge);
+    console.log("Before passing the value to the function ,", translatedText)
+    let mp3Url = await textToSpeechPolly(translatedText, listenerLangauge);
     console.log("mp3url : ", mp3Url)
-    await textToSpeechPolly(transcriptText)
+    //await textToSpeechPolly(transcriptText)
     let downloadedAudioUrl =   await speechDownloadPolly(mp3Url)
     return (downloadedAudioUrl)
 
