@@ -1,2 +1,0 @@
-# Voice Translation
-
